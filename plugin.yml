@@ -1,0 +1,10 @@
+name: Spectators
+version: 1.0
+main: us.meyerzinn.bukkit.Spectators.Spectators
+author: 20zinnm
+commands:
+  spectate:
+    description: Turn spectate mode on/off.
+    usage: /<command> on/off
+    permission: spectators.spectate
+    permission-message: Insufficient Permissions!
