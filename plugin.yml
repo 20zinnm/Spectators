@@ -5,6 +5,6 @@ author: 20zinnm
 commands:
   spectate:
     description: Turn spectate mode on/off.
-    usage: /<command> on/off
+    usage: Use /<command> to toggle spectator mode.
     permission: spectators.spectate
     permission-message: Insufficient Permissions!

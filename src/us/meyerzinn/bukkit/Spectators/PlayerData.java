@@ -1,6 +1,7 @@
 package us.meyerzinn.bukkit.Spectators;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
@@ -38,6 +39,8 @@ public class PlayerData {
 	public boolean sleepingIgnored;
 	public boolean sneaking;
 	public boolean sprinting;
+	public boolean canPickupItems;
+	public UUID uuid;
 
 	public PlayerData() {
 		

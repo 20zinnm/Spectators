@@ -10,14 +10,16 @@ import org.bukkit.GameMode;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class Spectators extends JavaPlugin {
 
-	protected static Map<UUID, PlayerData> spectators = new HashMap<>();
+	private static Map<UUID, PlayerData> spectators = new HashMap<>();
 
-	public static Boolean isPlayerSpectating(UUID uuid) {
+	public static boolean isPlayerSpectating(UUID uuid) {
 		if (spectators.containsKey(uuid)) {
 			return true;
 		} else {
@@ -58,11 +60,17 @@ public class Spectators extends JavaPlugin {
 		data.sleepingIgnored = player.isSleepingIgnored();
 		data.sneaking = player.isSneaking();
 		data.sprinting = player.isSprinting();
-
+		data.canPickupItems = player.getCanPickupItems();
+		data.uuid = player.getUniqueId();
 		spectators.put(player.getUniqueId(), data);
 		player.getInventory().clear();
-		player.setFlying(true);
-		player.setDisplayName(ChatColor.RED + "[Spectator]" + player.getDisplayName());
+		player.setGameMode(GameMode.CREATIVE);
+		player.setDisplayName(ChatColor.RED + "[Spectator]" + ChatColor.RESET
+				+ player.getDisplayName());
+		player.sendMessage("You are now spectating.");
+		player.setCanPickupItems(false);
+		player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY,
+				Integer.MAX_VALUE, 0), true);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -114,31 +122,22 @@ public class Spectators extends JavaPlugin {
 		player.setSleepingIgnored(data.sleepingIgnored);
 		player.setSneaking(data.sneaking);
 		player.setSprinting(data.sprinting);
-		
+		player.setCanPickupItems(data.canPickupItems);
+
 		spectators.remove(player.getUniqueId());
+		player.sendMessage("You are no longer spectating.");
 	}
 
 	private void spectateModeOn(Player p) {
-		if (spectators.containsKey(p.getUniqueId())) {
-			p.sendMessage("You are already in spectate mode! Do /spectate off to return to normal mode.");
-			return;
-		}
 		store(p);
 	}
 
 	private void spectateModeOff(Player p) {
-		if (!spectators.containsKey(p.getUniqueId())) {
-			p.sendMessage("You are not in spectate mode! Do /spectate on to enter spectate mode.");
-		}
 		restore(p);
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String label,
 			String[] args) {
-
-		if (args.length != 1) {
-			return false;
-		}
 
 		if (!(sender instanceof Player)) {
 			sender.sendMessage("Only players can use this command!");
@@ -148,37 +147,27 @@ public class Spectators extends JavaPlugin {
 		Player p = (Player) sender;
 
 		if (cmd.getName().equalsIgnoreCase("spectate")) {
-			if (args[0] == "off") {
-				if (!spectators.containsKey(p.getUniqueId())) {
-					p.sendMessage("You are not in spectator mode!");
-					return true;
-				}
+			if (spectators.containsKey(p.getUniqueId())) {
 				spectateModeOff(p);
 				return true;
-			}
-			if (args[0] == "on") {
-				if (spectators.containsKey(p.getUniqueId())) {
-					p.sendMessage("You are already in spectator mode!");
-				}
+			} else {
 				spectateModeOn(p);
+				return true;
 			}
-			return false;
 		}
 		return false;
 	}
 
 	public void onEnable() {
-
 		getServer().getPluginManager().registerEvents(new Listeners(), this);
-
 	}
-
+	
 	public void onDisable() {
-
-		for (Player p : Bukkit.getOnlinePlayers()) {
+		HandlerList.unregisterAll(this);
+		for (PlayerData data : spectators.values()) {
+			Player p = Bukkit.getPlayer(data.uuid);
 			restore(p);
 		}
-		
 	}
 
 }
