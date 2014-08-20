@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -47,7 +48,7 @@ public class Listeners implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority= EventPriority.HIGHEST)
 	public void onBlockBreakEvent(BlockBreakEvent e) {
 		if (Spectators.isPlayerSpectating(e.getPlayer().getUniqueId())) {
 			e.setCancelled(true);
