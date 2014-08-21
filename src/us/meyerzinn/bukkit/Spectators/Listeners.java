@@ -67,11 +67,12 @@ public class Listeners implements Listener {
 	
 	@EventHandler(priority= EventPriority.HIGHEST)
 	public void onPlayerCommandPreprocessEvent(PlayerCommandPreprocessEvent e) {
+		if (e.getMessage().equalsIgnoreCase("/spectate")) {
+			return;
+		}
 		if (Spectators.isPlayerSpectating(e.getPlayer().getUniqueId())) {
-			if (!e.getMessage().equalsIgnoreCase("spectate")) {
 				e.setCancelled(true);
 				e.getPlayer().sendMessage("You cannot use commands in spectator mode.");
-			}
 		}
 	}
 }
